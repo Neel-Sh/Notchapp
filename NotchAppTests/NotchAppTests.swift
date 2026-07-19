@@ -1,9 +1,151 @@
+import AppKit
 import Foundation
+import SwiftUI
 import Testing
 @testable import NotchApp
 
 @MainActor
 struct NotchShelfTests {
+    @Test func closingKeepsTheExpandedShellUntilTheFrameSettles() {
+        let chrome = NotchChromeModel()
+
+        chrome.open()
+        chrome.completeFrameTransition(towardOpen: true)
+        chrome.close()
+
+        #expect(!chrome.isOpen)
+        #expect(!chrome.showsOpenContent)
+        #expect(chrome.usesExpandedAppearance)
+        #expect(chrome.isTransitioning)
+
+        chrome.completeFrameTransition(towardOpen: false)
+
+        #expect(!chrome.usesExpandedAppearance)
+        #expect(!chrome.isTransitioning)
+    }
+
+    @Test func reopeningIgnoresAStaleClosingCompletion() {
+        let chrome = NotchChromeModel()
+
+        chrome.open()
+        chrome.close()
+        chrome.open()
+        chrome.completeFrameTransition(towardOpen: false)
+
+        #expect(chrome.isOpen)
+        #expect(chrome.showsOpenContent)
+        #expect(chrome.usesExpandedAppearance)
+        #expect(chrome.isTransitioning)
+
+        chrome.completeFrameTransition(towardOpen: true)
+
+        #expect(!chrome.isTransitioning)
+    }
+
+    @Test func expandedShellFlowsInFromTheTopBezel() {
+        let path = NotchBezelShellShape(
+            notchWidth: 185,
+            notchHeight: 32,
+            bezelShoulderRadius: 28,
+            bezelShoulderDepth: 30,
+            bottomCornerRadius: 30
+        )
+        .path(in: CGRect(x: 0, y: 0, width: 560, height: 408))
+
+        #expect(path.contains(CGPoint(x: 280, y: 4)))
+        #expect(!path.contains(CGPoint(x: 8, y: 4)))
+        #expect(path.contains(CGPoint(x: 20, y: 4)))
+        #expect(!path.contains(CGPoint(x: 10, y: 40)))
+        #expect(path.contains(CGPoint(x: 28, y: 40)))
+        #expect(!path.contains(CGPoint(x: 4, y: 72)))
+        #expect(path.contains(CGPoint(x: 30, y: 72)))
+    }
+
+    @Test func expandedShellUsesRoundedHooksBelowTheBezel() {
+        let path = NotchBezelShellShape(
+            notchWidth: 185,
+            notchHeight: 32,
+            bezelShoulderRadius: 28,
+            bezelShoulderDepth: 30,
+            bottomCornerRadius: 30
+        )
+        .path(in: CGRect(x: 0, y: 0, width: 560, height: 408))
+
+        #expect(!path.contains(CGPoint(x: 8, y: 4)))
+        #expect(path.contains(CGPoint(x: 20, y: 4)))
+        #expect(!path.contains(CGPoint(x: 20, y: 12)))
+        #expect(path.contains(CGPoint(x: 27, y: 12)))
+        #expect(!path.contains(CGPoint(x: 24, y: 24)))
+        #expect(path.contains(CGPoint(x: 30, y: 24)))
+    }
+
+    @Test func shellShouldersGrowProgressivelyDuringWindowResize() {
+        let path = NotchBezelShellShape(
+            notchWidth: 185,
+            notchHeight: 32,
+            bezelShoulderRadius: 28,
+            bezelShoulderDepth: 30,
+            bottomCornerRadius: 30
+        )
+        .path(in: CGRect(x: 0, y: 0, width: 220, height: 40))
+
+        #expect(path.contains(CGPoint(x: 110, y: 38)))
+        #expect(path.contains(CGPoint(x: 20, y: 38)))
+        #expect(!path.contains(CGPoint(x: 4, y: 38)))
+    }
+
+    @Test func expandedPanelKeepsOpenWhenPointerLeavesTheOriginalNotchArea() {
+        let shouldKeepOpen = NotchPointerInteraction.shouldKeepOpen(
+            panelFrame: NSRect(x: 476, y: 574, width: 560, height: 408),
+            isKeyWindow: false,
+            mouseLocation: NSPoint(x: 650, y: 850)
+        )
+
+        #expect(shouldKeepOpen)
+    }
+
+    @Test func interactingPanelStaysOpenOutsideItsBoundsWhileKey() {
+        let shouldKeepOpen = NotchPointerInteraction.shouldKeepOpen(
+            panelFrame: NSRect(x: 476, y: 574, width: 560, height: 408),
+            isKeyWindow: true,
+            mouseLocation: NSPoint(x: 200, y: 200)
+        )
+
+        #expect(shouldKeepOpen)
+    }
+
+    @Test func inactivePanelCanDismissAfterPointerLeaves() {
+        let shouldKeepOpen = NotchPointerInteraction.shouldKeepOpen(
+            panelFrame: NSRect(x: 476, y: 574, width: 560, height: 408),
+            isKeyWindow: false,
+            mouseLocation: NSPoint(x: 200, y: 200)
+        )
+
+        #expect(!shouldKeepOpen)
+    }
+
+    @Test func cameraHousingGeometryUsesTheGapBetweenAuxiliaryAreas() {
+        let housingFrame = NotchScreenGeometry.cameraHousingFrame(
+            screenFrame: NSRect(x: 0, y: 0, width: 1_512, height: 982),
+            safeAreaTop: 32,
+            leftArea: NSRect(x: 0, y: 950, width: 663, height: 32),
+            rightArea: NSRect(x: 848, y: 950, width: 664, height: 32)
+        )
+
+        #expect(housingFrame == NSRect(x: 663, y: 950, width: 185, height: 32))
+    }
+
+    @Test func cameraHousingGeometryFallsBackWhenTheScreenHasNoTopInset() {
+        let housingFrame = NotchScreenGeometry.cameraHousingFrame(
+            screenFrame: NSRect(x: 0, y: 0, width: 1_920, height: 1_080),
+            safeAreaTop: 0,
+            leftArea: nil,
+            rightArea: nil
+        )
+
+        #expect(housingFrame == nil)
+    }
+
     @Test func clipboardDeduplicatesAndMovesExistingItemToFront() async throws {
         let store = ClipboardHistoryStore(store: try temporaryStore(), maxUnpinnedCount: 50)
 

@@ -1,4 +1,24 @@
+import AppKit
 import SwiftUI
+
+struct MacVisualEffectView: NSViewRepresentable {
+    var material: NSVisualEffectView.Material = .hudWindow
+    var blendingMode: NSVisualEffectView.BlendingMode = .behindWindow
+
+    func makeNSView(context: Context) -> NSVisualEffectView {
+        let view = NSVisualEffectView()
+        view.material = material
+        view.blendingMode = blendingMode
+        view.state = .active
+        return view
+    }
+
+    func updateNSView(_ view: NSVisualEffectView, context: Context) {
+        view.material = material
+        view.blendingMode = blendingMode
+        view.state = .active
+    }
+}
 
 struct IconButton: View {
     let systemImage: String
@@ -6,6 +26,8 @@ struct IconButton: View {
     var size: CGFloat = 11
     var frameSize: CGFloat = 22
     let action: () -> Void
+    @State private var isHovering = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         Button(action: action) {
@@ -14,7 +36,15 @@ struct IconButton: View {
                 .frame(width: frameSize, height: frameSize)
         }
         .buttonStyle(.plain)
-        .foregroundStyle(.white.opacity(0.64))
+        .foregroundStyle(isHovering ? Color.primary : Color.secondary)
+        .background {
+            RoundedRectangle(cornerRadius: max(5, frameSize * 0.22), style: .continuous)
+                .fill(isHovering ? Color.white.opacity(0.10) : .clear)
+        }
+        .contentShape(RoundedRectangle(cornerRadius: max(5, frameSize * 0.22), style: .continuous))
+        .onHover { isHovering = $0 }
+        .animation(reduceMotion ? nil : .easeOut(duration: 0.1), value: isHovering)
+        .accessibilityLabel(help)
         .help(help)
     }
 }
