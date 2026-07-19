@@ -1,0 +1,19 @@
+.DS_Store
+
+# Xcode user state
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+
+# Build products and reports
+DerivedData/
+build/
+*.xcresult
+
+# SwiftPM local artifacts
+.build/
+.swiftpm/
+
+# App/package temporary files
+*.tmp
+*.swp

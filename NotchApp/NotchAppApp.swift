@@ -1,17 +1,12 @@
-//
-//  NotchAppApp.swift
-//  NotchApp
-//
-//  Created by Nicklas Wehling on 19.07.26.
-//
-
 import SwiftUI
 
 @main
 struct NotchAppApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
+
     var body: some Scene {
-        WindowGroup {
-            ContentView()
+        Settings {
+            EmptyView()
         }
     }
 }
