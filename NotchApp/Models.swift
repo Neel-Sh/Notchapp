@@ -33,15 +33,6 @@ struct QuickNoteItem: Identifiable, Codable, Equatable, Sendable {
     var updatedAt: Date
 }
 
-struct CalendarEventItem: Identifiable, Equatable, Sendable {
-    var id: String
-    var title: String
-    var startDate: Date
-    var endDate: Date
-    var calendarTitle: String
-    var isAllDay: Bool
-}
-
 enum CodexTaskStatus: String, Codable, Sendable {
     case running
     case done

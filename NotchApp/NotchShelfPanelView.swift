@@ -70,11 +70,7 @@ struct NotchContainerView: View {
     }
 
     private var closedContent: some View {
-        HStack {
-            Image(systemName: "tray.full")
-                .font(.system(size: 11, weight: .semibold))
-                .foregroundStyle(.white.opacity(0.16))
-        }
+        Color.clear
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .contentShape(Rectangle())
         .onTapGesture {
@@ -88,7 +84,7 @@ struct NotchContainerView: View {
                 sectionButton(.clipboard)
                 sectionButton(.shelf)
                 sectionButton(.notes)
-                sectionButton(.today)
+                sectionButton(.focus)
             }
             .padding(.horizontal, 14)
             .padding(.top, Metrics.openTopClearance)
@@ -102,8 +98,8 @@ struct NotchContainerView: View {
                     ShelfSectionView(store: model.shelf, isDropTargeted: $isDropTargeted)
                 case .notes:
                     NotesSectionView(store: model.notes)
-                case .today:
-                    TodaySectionView(calendar: model.calendar, keepAwake: model.keepAwake)
+                case .focus:
+                    FocusSectionView(keepAwake: model.keepAwake)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -244,7 +240,7 @@ enum PanelSection: String, CaseIterable, Identifiable {
     case clipboard
     case shelf
     case notes
-    case today
+    case focus
 
     var id: String { rawValue }
 
@@ -253,7 +249,7 @@ enum PanelSection: String, CaseIterable, Identifiable {
         case .clipboard: "Clipboard"
         case .shelf: "Shelf"
         case .notes: "Notes"
-        case .today: "Today"
+        case .focus: "Focus"
         }
     }
 
@@ -262,7 +258,7 @@ enum PanelSection: String, CaseIterable, Identifiable {
         case .clipboard: "doc.on.clipboard"
         case .shelf: "tray.and.arrow.down"
         case .notes: "note.text"
-        case .today: "calendar"
+        case .focus: "cup.and.saucer"
         }
     }
 
@@ -271,7 +267,7 @@ enum PanelSection: String, CaseIterable, Identifiable {
         case .clipboard: "1"
         case .shelf: "2"
         case .notes: "3"
-        case .today: "4"
+        case .focus: "4"
         }
     }
 }

@@ -1,6 +1,6 @@
 # NotchShelf
 
-NotchShelf is a local-first macOS notch productivity app built inside the `NotchApp` Xcode project. It keeps recent clipboard items, temporary files, quick notes, calendar context, and keep-awake controls close to the notch without using Notification Center or a persistent menu bar item.
+NotchShelf is a local-first macOS notch productivity app built inside the `NotchApp` Xcode project. It keeps recent clipboard items, temporary files, quick notes, and keep-awake controls close to the notch without using Notification Center or a persistent menu bar item.
 
 ## Features
 
@@ -11,7 +11,7 @@ NotchShelf is a local-first macOS notch productivity app built inside the `Notch
 - **Temporary file shelf**: drag files into the notch/panel to copy them into local app storage, then reveal, copy path, drag out, AirDrop, pin, multi-select, or remove them.
 - **Two-day shelf retention**: unpinned shelf files are treated as temporary and automatically expire after two days; pinned files are kept.
 - **Quick notes**: add short notes from the notch panel, including Enter-to-add behavior, copy, and delete.
-- **Today view**: month calendar with selected-day event list plus a keep-awake control for two hours or until turned off.
+- **Focus view**: keep-awake control for two hours or until turned off.
 - **Local-only storage**: no app network calls. Clipboard, favorites, notes, shelf metadata, and copied shelf files stay on the Mac.
 
 ## Keyboard Shortcuts
@@ -19,9 +19,8 @@ NotchShelf is a local-first macOS notch productivity app built inside the `Notch
 - `Command 1`: Clipboard
 - `Command 2`: Shelf
 - `Command 3`: Notes
-- `Command 4`: Today
+- `Command 4`: Focus
 - `Command K`: toggle Keep Awake until turned off
-- `Command R`: refresh calendar access/events
 - `Command Shift Delete`: clear recent clipboard history
 - `Enter`: add the current quick note
 
@@ -46,7 +45,6 @@ Removing a shelf item deletes only the app-managed copy in `Shelf/`, never the o
 ## Permissions
 
 - Pasteboard access is used for clipboard history and copy-back behavior.
-- Calendar access is requested for the Today view.
 - File shelf actions use local file access for files the user explicitly drops into the app.
 - Keep Awake uses a local IOKit power assertion while enabled.
 
@@ -69,7 +67,7 @@ xcodebuild -project NotchApp.xcodeproj -scheme NotchApp -sdk macosx -configurati
 - `AppDelegate` owns the accessory app lifecycle.
 - `NotchPanelController` manages notch/panel activation and positioning.
 - `NotchShelfPanelView` hosts the top-level SwiftUI tabbed interface.
-- Feature views live in separate SwiftUI files for Clipboard, Shelf, Notes, and Today.
+- Feature views live in separate SwiftUI files for Clipboard, Shelf, Notes, and Focus.
 - Local persistence uses small JSON stores rather than a database.
 - The old Codex task provider remains isolated behind model/provider types for later reuse, but the active UI does not expose a Codex tab.
 

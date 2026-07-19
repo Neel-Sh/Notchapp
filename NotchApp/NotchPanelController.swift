@@ -63,7 +63,7 @@ final class NotchPanelController {
         panel.sharingType = .none
         panel.appearance = NSAppearance(named: .darkAqua)
         panel.hasShadow = false
-        panel.collectionBehavior = [.canJoinAllSpaces, .stationary, .ignoresCycle, .fullScreenAuxiliary]
+        panel.collectionBehavior = [.moveToActiveSpace, .transient, .ignoresCycle, .fullScreenAuxiliary]
         panel.ignoresMouseEvents = false
 
         let rootView = NotchContainerView(
@@ -85,6 +85,12 @@ final class NotchPanelController {
             self,
             selector: #selector(screenParametersChanged),
             name: NSApplication.didChangeScreenParametersNotification,
+            object: nil
+        )
+        NSWorkspace.shared.notificationCenter.addObserver(
+            self,
+            selector: #selector(activeSpaceChanged),
+            name: NSWorkspace.activeSpaceDidChangeNotification,
             object: nil
         )
     }
@@ -118,7 +124,7 @@ final class NotchPanelController {
         let x = screen.frame.midX - size.width / 2
         let y = screen.frame.maxY - size.height
         chrome.panelSize = size
-        panel.setFrame(NSRect(x: x.rounded(.down), y: y.rounded(.down), width: size.width, height: size.height), display: true, animate: true)
+        panel.setFrame(NSRect(x: x.rounded(.down), y: y.rounded(.down), width: size.width, height: size.height), display: true, animate: isOpen)
     }
 
     private func openSize(for screen: NSScreen) -> NSSize {
@@ -155,5 +161,15 @@ final class NotchPanelController {
 
     @objc private func screenParametersChanged() {
         resizeAndPosition(isOpen: chrome.isOpen)
+    }
+
+    @objc private func activeSpaceChanged() {
+        guard !chrome.isOpen else {
+            resizeAndPosition(isOpen: true)
+            return
+        }
+        panel.orderOut(nil)
+        resizeAndPosition(isOpen: false)
+        panel.orderFrontRegardless()
     }
 }
