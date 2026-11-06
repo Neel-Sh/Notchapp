@@ -82,3 +82,7 @@ macOS does not provide a public API for placing third-party UI inside the hardwa
 - Optional snippet expansion or multi-paste workflows.
 - Shelf size limits and cleanup controls.
 - Settings panel for retention, shortcuts, and launch-at-login.
+
+## Requirements and fork
+
+The checked-in deployment target is **macOS 15.0**. Use Xcode with a compatible macOS SDK and select your own development team if signing is needed. This repository is a fork of [nwwehling/Notchapp](https://github.com/nwwehling/Notchapp); the NotchShelf description above reflects this fork's current code. Preserve upstream attribution when contributing. See [Contributing](CONTRIBUTING.md). No repository-wide license file is included.
